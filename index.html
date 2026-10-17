@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang = 'en'>
+    <head>
+        <meta charset = 'UTF-8'>
+        <meta name = 'viewport' content = 'width = 1536, height = 730, initial-scale = 1.0'>
+        <title>Temperature Chart</title>
+        <link rel = 'stylesheet' href = 'TLF_Styles.css'>
+        <link rel = 'icon' href = 'TLF_Icon.png'>
+    </head>
+
+    <body>
+        <header class = 'app-header'>
+            <div>
+                <h1><span class = 'header-thermometer'>🌡️</span>Temperature Logbook</h1>
+                <p class = 'header-subtitle'>Keep an Accurate Record of Temperature Readings.</p>
+            </div>
+            <div class = 'user-card'>
+                <img id = 'userPhoto' class = 'user-photo' alt = 'User Photo' referrerpolicy = 'no-referrer'>
+                <div class = 'user-details'>
+                    <div id = 'userStatusChip' class = 'user-status-chip'></div>
+                    <div id = 'userName' class = 'user-name'>Guest</div>
+                    <div id = 'userEmail' class = 'user-email'></div>
+                    <div id = 'userCreated' class = 'user-created hidden'></div>
+                </div>
+                <button id = 'authToggleButton' class = 'auth-toggle-button sign-in' type = 'button'><span id = 'authIcon' class = 'auth-icon'>G</span><span id = 'authToggleLabel'>Sign In with Google</span></button>
+            </div>
+        </header>
+        <section class = 'card'>
+            <div class = 'records-header'>
+                <h2>Temperature Records</h2>
+                <p class = 'card-description'>Records are Automatically Sorted by Date and Time.</p>
+                <div id = 'dateFilterRow' class = 'date-filter-row hidden'>
+                    <label for = 'dateFilterSelect'>Show Date</label>
+                    <select id = 'dateFilterSelect'></select>
+                </div>
+                <div id = 'recordCountBadge' class = 'record-count-badge'>0 Records</div>
+            </div>
+            <div id = 'dateFilterRow' class = 'date-filter-row hidden'>
+                <label for = 'dateFilterSelect'>Show Date</label>
+                <select id = 'dateFilterSelect'></select>
+            </div>
+            <div id = 'emptyRecords' class = 'empty-records'>
+                <div class = 'empty-icon'>🌡️</div>
+                <div class = 'empty-title'>No Temperature Recordings yet</div>
+                <div class = 'empty-text'>Your Temperature Readings will Appear here.</div>
+            </div>
+            <div id = 'recordsTableWrapper' class = 'records-table-wrapper hidden'>
+                <table class = 'records-table'>
+                    <thead><tr><th>S.No.</th><th>Temperature</th><th>Date</th><th>Time</th><th>Interval</th><th>Action</th></tr></thead>
+                    <tbody id = 'recordsTableBody'></tbody>
+                </table>
+            </div>
+        </section>
+        <section class = 'card'>
+            <h2>Record Temperature</h2>
+            <div class = 'record-input-row'>
+                <div class = 'record-mode-buttons'>
+                    <button id = 'currentModeButton' class = 'mode-button active' type = 'button'>Current Reading</button>
+                    <button id = 'pastModeButton' class = 'mode-button' type = 'button'>Past Reading</button>
+                </div>
+                <div class = 'input-group temperature-group'>
+                    <label for = 'temperatureInput'>Temperature (°F)</label>
+                    <div class = 'temperature-input-wrapper'>
+                        <input id = 'temperatureInput' type = 'number' min = '90' max = '106' step = '0.1' inputmode = 'decimal' placeholder = 'e.g. 98.6' autocomplete = 'off'>
+                        <span class = 'fahrenheit-label'>°F</span>
+                    </div>
+                </div>
+                <div id = 'pastDateTimeSection' class = 'past-date-time-section hidden'>
+                    <div class = 'input-group'>
+                        <label for = 'pastDateInput'>Date</label>
+                        <input id = 'pastDateInput' type = 'date'>
+                    </div>
+                    <div class = 'input-group'>
+                        <label for = 'pastTimeInput'>Time</label>
+                        <input id = 'pastTimeInput' type = 'time' step = '1'>
+                    </div>
+                </div>
+                <button id = 'addTemperatureButton' class = 'primary-button' type = 'button'>+ Record Temperature</button>
+            </div>
+            <div class = 'record-header'>
+                <p class = 'card-description'><span class = 'note-log'>Log a Reading now, or Add a Past one with its Date and Time.</span> <br><span class = 'note-range'>Only Temperatures <b class = 'nv-range'>90.0°F-106.0°F</b> Accepted and Cut to One Decimal Place.</span> <br><span class = 'note-gap'>Max Gap between Readings is set in Hazard Parameters in Whole Minutes, <br>up to <b class = 'nv-max'>1440 (24 Hours)</b>; Longer Gaps are Flagged Red in the Interval column.</span> <br><span class = 'note-backup'>Export your Records as a JSON Backup, or Import a Saved one to Restore it.</span> <span class = 'note-warn'>Importing Completely Overwrites Current Records and Hazard Parameters, <br>so Export First if you want to keep them.</span></p>
+                <div class = 'record-header-actions'>
+                    <div class = 'import-export-actions'>
+                        <button id = 'importButton' class = 'secondary-button' type = 'button'><span>📥</span><br>Import <br>Temperature <br>Records</button>
+                        <button id = 'exportButton' class = 'secondary-button' type = 'button'><span>📤</span><br>Export <br>Temperature <br>Records</button>
+                        <input id = 'FileInput' type = 'file' accept = '.json,application/json' class = 'hidden'>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class = 'card'>
+            <div class = 'hazard-title-row'>
+                <h2>Hazard Parameters</h2>
+                <button id = 'resetHazardButton' class = 'secondary-button reset-hazard-button' type = 'button'>Reset to Defaults</button>
+            </div>
+            <div class = 'hazard-grid'>
+                <div class = 'input-group'>
+                    <label for = 'lowLimitInput'>Dangerously Low Below (°F)</label>
+                    <input id = 'lowLimitInput' type = 'number' min = '90' max = '106' step = '0.1' inputmode = 'decimal' autocomplete = 'off'>
+                </div>
+                <div class = 'input-group' id = 'feverLimit'>
+                    <label for = 'feverLimitInput'>Fever from (°F)</label>
+                    <input id = 'feverLimitInput' type = 'number' min = '90' max = '106' step = '0.1' inputmode = 'decimal' autocomplete = 'off'>
+                </div>
+                <div class = 'input-group'>
+                    <label for = 'highFeverLimitInput'>High Fever from (°F)</label>
+                    <input id = 'highFeverLimitInput' type = 'number' min = '90' max = '106' step = '0.1' inputmode = 'decimal' autocomplete = 'off'>
+                </div>
+                <div class = 'input-group' id = 'maxInterval'>
+                    <label for = 'maxIntervalInput'>Max Gap between Readings (min)</label>
+                    <input id = 'maxIntervalInput' type = 'number' min = '1' max = '1440' step = '1' inputmode = 'numeric' autocomplete = 'off'>
+                </div>
+            </div>
+            <div id = 'hazardSummary' class = 'hazard-summary'></div>
+            <p class = 'card-description'><span class = 'note-log'>Choose what counts as hazardous. Changes Save Automatically when you Leave a Field.</span> <br><span class = 'note-range'>Temperature Limits must be <b class = 'nv-range'>90.0°F-106.0°F</b>, are Cut to One Decimal Place, and must Rise in Order: Dangerously Low, Fever, High Fever.</span> <br><span class = 'note-gap'>Each Limit must be at least <b class = 'nv-step'>1.0°F</b> apart from the next. Max Gap is in Whole Minutes, <b class = 'nv-max'>1 to 1440 (24 Hours)</b>.</span> <br><span class = 'note-backup'>Defaults are <b class = 'nv-low'>95.0°F</b>, <b class = 'nv-fever'>99.0°F</b> and <b class = 'nv-high'>102.0°F</b> with a <b class = 'nv-gap'>60 min</b> Gap; use Reset to Defaults to Restore them.</span> <span class = 'note-warn'>Invalid Values are Not Saved.</span></p>
+        </section>
+        <section class = 'card summary-card'>
+            <h2>Temperature Summary</h2>
+            <p class = 'card-description'>Overview of All Recorded Temperature Readings.</p>
+            <div class = 'temperature-stat-grid'>
+                <div class = 'temperature-stat'>
+                    <div class = 'stat-icon'>↓</div>
+                    <div class = 'stat-label'>Lowest Temperature</div>
+                    <div id = 'lowestTemperature' class = 'stat-value'>—</div>
+                </div>
+                <div class = 'temperature-stat'>
+                    <div class = 'stat-icon'>↑</div>
+                    <div class = 'stat-label'>Highest Temperature</div>
+                    <div id = 'highestTemperature' class = 'stat-value'>—</div>
+                </div>
+                <div class = 'temperature-stat'>
+                    <div class = 'stat-icon'>#</div>
+                    <div class = 'stat-label'>Total Recordings</div>
+                    <div id = 'totalRecordings' class = 'stat-value'>0</div>
+                </div>
+            </div>
+            <div class = 'graph-container'>
+                <h3>Temperature History</h3>
+                <p><span class = 'gx-act'>Ctrl + scroll</span> or <span class = 'gx-act'>Pinch</span> to <span class = 'gx-zoom'>Zoom</span>, <span class = 'gx-act'>Drag</span> to <span class = 'gx-pan'>Pan</span>, <span class = 'gx-act'>Double-Click</span> to <span class = 'gx-reset'>Reset</span></p>
+                <div id = 'noGraphData' class = 'no-graph-data'>Record Temperatures to see the Graph.</div>
+                <div id = 'temperatureChartContainer' class = 'temperature-chart-container hidden'><canvas id = 'temperatureChart'></canvas></div>
+            </div>
+        </section>
+        
+        <footer class = 'app-footer'>
+            <div>Temperature Logbook</div>
+            <div>Temperature Values are Recorded in <span class = 'ft-f'>Fahrenheit (°F)</span>.</div>
+        </footer>
+    </body>
+
+    <script defer src = 'https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js'></script>
+    <script defer src = 'https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js'></script>
+    <script defer src = 'https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js'></script>
+    <script defer src = 'https://cdn.jsdelivr.net/npm/chart.js'></script>
+    <script defer src = 'https://cdn.jsdelivr.net/npm/hammerjs@2.0.8'></script>
+    <script defer src = 'https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1'></script>
+    <script defer src = 'TLF_Script.js'></script>
+    
+    <noscript><style>body { display: block; }</style></noscript>
+</html>
